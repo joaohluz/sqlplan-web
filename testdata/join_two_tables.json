@@ -1,0 +1,47 @@
+{
+  "query_block": {
+    "select_id": 1,
+    "cost_info": { "query_cost": "610.10" },
+    "nested_loop": [
+      {
+        "table": {
+          "table_name": "orders",
+          "access_type": "ALL",
+          "possible_keys": null,
+          "rows_examined_per_scan": 5000,
+          "rows_produced_per_join": 500,
+          "filtered": "10.00",
+          "cost_info": {
+            "read_cost": "50.10",
+            "eval_cost": "10.00",
+            "prefix_cost": "60.10",
+            "data_read_per_join": "390K"
+          },
+          "used_columns": ["id", "user_id", "total"]
+        }
+      },
+      {
+        "table": {
+          "table_name": "users",
+          "access_type": "eq_ref",
+          "possible_keys": ["PRIMARY"],
+          "key": "PRIMARY",
+          "used_key_parts": ["id"],
+          "key_length": "4",
+          "ref": ["mydb.orders.user_id"],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 500,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "500.00",
+            "eval_cost": "50.00",
+            "prefix_cost": "610.10",
+            "data_read_per_join": "48K"
+          },
+          "used_columns": ["id", "email", "name"],
+          "attached_condition": "(`mydb`.`users`.`email` is not null)"
+        }
+      }
+    ]
+  }
+}

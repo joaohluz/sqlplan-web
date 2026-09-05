@@ -1,0 +1,25 @@
+{
+  "query_block": {
+    "select_id": 1,
+    "cost_info": { "query_cost": "1.20" },
+    "table": {
+      "table_name": "users",
+      "access_type": "ref",
+      "possible_keys": ["idx_email"],
+      "key": "idx_email",
+      "used_key_parts": ["email"],
+      "key_length": "203",
+      "ref": ["const"],
+      "rows_examined_per_scan": 1,
+      "rows_produced_per_join": 1,
+      "filtered": "100.00",
+      "cost_info": {
+        "read_cost": "1.00",
+        "eval_cost": "0.20",
+        "prefix_cost": "1.20",
+        "data_read_per_join": "96"
+      },
+      "used_columns": ["id", "email", "name"]
+    }
+  }
+}
