@@ -2,6 +2,7 @@ import { convertToExcalidrawElements } from "@excalidraw/excalidraw";
 import type { ExcalidrawElement } from "@excalidraw/excalidraw/element/types";
 import type { PlanNode, PlanNodeFlag } from "../planmodel/node";
 import { layoutPlan, type LayoutBox } from "./layout";
+import { computeArrowGeometry } from "./arrowGeometry";
 
 interface FlagStyle {
   strokeColor: string;
@@ -43,13 +44,13 @@ function styleForNode(node: PlanNode): FlagStyle | null {
  */
 export function planToExcalidrawElements(root: PlanNode): readonly ExcalidrawElement[] {
   const { boxes } = layoutPlan(root);
-  const idByBox = new Map<LayoutBox, string>();
+  const boxById = new Map<string, LayoutBox>();
 
   const skeletons: Parameters<typeof convertToExcalidrawElements>[0] = [];
 
   for (const box of boxes) {
     const elementId = box.id;
-    idByBox.set(box, elementId);
+    boxById.set(box.id, box);
     const style = styleForNode(box.node);
 
     skeletons.push({
@@ -70,15 +71,24 @@ export function planToExcalidrawElements(root: PlanNode): readonly ExcalidrawEle
     });
   }
 
+  // Arrows point child -> parent, representing the flow of rows during
+  // execution: leaf table scans run first and feed their results up into
+  // the parent operation (nested loop, sort, grouping, ...) that consumes them.
   for (const box of boxes) {
     if (box.parentId === null) continue;
+    const parentBox = boxById.get(box.parentId);
+    if (!parentBox) continue;
+
+    const geometry = computeArrowGeometry(box, parentBox);
     skeletons.push({
       type: "arrow",
-      x: 0,
-      y: 0,
+      x: geometry.x,
+      y: geometry.y,
+      width: geometry.width,
+      height: geometry.height,
       strokeColor: DEFAULT_STROKE,
-      start: { id: box.parentId },
-      end: { id: box.id },
+      start: { id: box.id },
+      end: { id: parentBox.id },
     });
   }
 
